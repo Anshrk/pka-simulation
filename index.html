@@ -17,26 +17,55 @@
         count = matrix.length;
         let matrix_string = matrix.join(" ");
         let template = `
-V = [0 : 0.2 : ${(2 * (count-1)/10).toFixed(1)}];
 
+V_NaOH = [0 : 0.2 : ${(2 * (count-1)/10).toFixed(1)}];
 pH = [${matrix_string}];
 
-dpH = zeros(1, size(V, 2));
+dpH = zeros(1, size(V_NaOH, 2));
 
-for i=2:size(V, 2);
+for i=2:size(V_NaOH, 2);
     dpH(i) = pH(i) - pH(i-1);
 end;
 
 [max_val, max_index] = max(dpH);
 
-half_eq = median(V(1:max_index));
-eq = V(max_index);
+half_eq = median(V_NaOH(1:max_index));
+eq = V_NaOH(max_index);
 
-plot(V, pH)
+
+pKa = median(pH(1:max_index));
+
+plot(V_NaOH, pH)
 xline(half_eq, '--', {'Half Equivilance Point'})
+yline(pKa, '--', {'Pka = ', pKa})
 
-plot(V, dpH)
-xline(eq, '--', {'Equivilance Point'})`;
+pKa
+
+plot(V_NaOH, dpH)
+xline(eq, '--', {'Equivilance Point'})
+
+fprintf("Calculations: ")
+if pKa > 4 && pKa < 5
+    acid = "CH3COOH"
+    molar_mass = 60
+elseif pKa < 3 && pKa > 4
+    acid = "HCOOH"
+    molar_mass = 46
+elseif pKa < 6 && pKa > 7
+    acid = "H2CO3"
+    molar_mass = 31
+elseif pKa > 0.5 && pKa < 2
+    acid = "H2C2O4"
+    molar_mass = 63
+end
+fprintf("(NV)(acid) = (NV)(NaOH)")
+fprintf("N(acid) = (NV)(NaOH)/V(acid)")
+fprintf("N(acid) = 0.05 * %0.2f / %d", eq, 50)
+N_acid = 0.05 * eq / 50
+fprintf("Mass of the acid present in the given solution is: %0.4f", N_acid * molar_mass)
+
+`;
+
         navigator.clipboard.writeText(template);
         alert("Matlab code has been copied to clipboard");
     }
@@ -378,7 +407,7 @@ xline(eq, '--', {'Equivilance Point'})`;
           volAcid = titre/1000;
           volBase = 0.025;
         } else {
-          volAcid = 0.025;
+          volAcid = 0.050;
           volBase = titre/1000;
         }
         totVol = volBase + volAcid;     // Stoichiometric calc.
