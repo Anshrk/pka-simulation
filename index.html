@@ -1,6 +1,46 @@
 <html><head>
     <title>Titration Simulator</title>
     <script language="JavaScript" type="text/javascript">
+        function matlabGenerate() {
+            let count = document.getElementById("v-table-body").childElementCount;
+        console.log(count)
+        let matrix = []
+        for (let i = 0; i < (count) * 2; i+=2) {
+            let inputId = `v-${(i / 10).toFixed(1)}`;
+            let inputElement = document.getElementById(inputId);
+            // Access the value of the input and print it
+            let inputValue = inputElement.value;
+            if (inputValue !== "") {
+                matrix.push(inputValue);
+            }
+        }
+        count = matrix.length;
+        let matrix_string = matrix.join(" ");
+        let template = `
+V = [0 : 0.2 : ${(2 * (count-1)/10).toFixed(1)}];
+
+pH = [${matrix_string}];
+
+dpH = zeros(1, size(V, 2));
+
+for i=2:size(V, 2);
+    dpH(i) = pH(i) - pH(i-1);
+end;
+
+[max_val, max_index] = max(dpH);
+
+half_eq = median(V(1:max_index));
+eq = V(max_index);
+
+plot(V, pH)
+xline(half_eq, '--', {'Half Equivilance Point'})
+
+plot(V, dpH)
+xline(eq, '--', {'Equivilance Point'})`;
+        navigator.clipboard.writeText(template);
+        alert("Matlab code has been copied to clipboard");
+    }
+    
         var graph, graphCTX, liquids, liquidsCTX, stirBar, stirBarCTX; 
         var acid="Choose", base="Choose", indicator="Choose"; // (Unselected at startup)
         var strongAcid, strongBase;
@@ -778,18 +818,47 @@
     </div>	
     <!-- Operating instructions area -->
     <div style="position:absolute; top:10px; left:810px; border:2px solid #00ff00; width:500px; padding:0px 20px;">
-    <h3>Notes</h3>
-    <ul>
-    <li style="padding-bottom:5px;">The apparatus includes a 25 mL buret and a 125 mL flask. After selection of the parameters, the buret is filled with titrant to a random level just below the zero mark, and the flask is loaded with a 25 mL aliquot.</li>
-    <li style="padding-bottom:5px;">To begin, select the acid, the base, their concentrations, which of them is in the burette, and choose an indicator. Then click "Add solutions...".</li>
-    <li style="padding-bottom:5px;">Left-click and hold down the mouse button on the burette stopcock to open it. Release the mouse button to close it. (The titration will stop automatically at the 25 mL mark if it is not stopped earlier.)</li>
-    <li style="padding-bottom:5px;">Any parameter or parameters can be changed after the first have been chosen. Click "Add solutions..." again to begin a new titration.<br></li>
-    <li style="padding-bottom:5px;">Check "Show the equivalence point" to see and compare the equivalence point to the end point.</li>
-    <li style="padding-bottom:5px;">Check "Show the data points" to record a data point each time the stopcock is closed.</li>
+    <h3>Procedure</h3>
+    <table class="v-table">
+        <thead>
+            <tr class="v-table-tr">
+                <th class="v-table-th">V</th>
+                <th class="v-table-th">pH</th>
+            </tr>
+        </thead>
+        <tbody id="v-table-body">
+            <tr><td>0.0</td><td><input type="text" id="v-0.0" name="volume-inp"></input></td></tr>
+            <tr><td>0.2</td><td><input type="text" id="v-0.2" name="volume-inp"></input></td></tr>
+            <tr><td>0.4</td><td><input type="text" id="v-0.4" name="volume-inp"></input></td></tr>
+            <tr><td>0.6</td><td><input type="text" id="v-0.6" name="volume-inp"></input></td></tr>
+            <tr><td>0.8</td><td><input type="text" id="v-0.8" name="volume-inp"></input></td></tr>
+            <tr><td>1.0</td><td><input type="text" id="v-1.0" name="volume-inp"></input></td></tr>
+            <tr><td>1.2</td><td><input type="text" id="v-1.2" name="volume-inp"></input></td></tr>
+            <tr><td>1.4</td><td><input type="text" id="v-1.4" name="volume-inp"></input></td></tr>
+            <tr><td>1.6</td><td><input type="text" id="v-1.6" name="volume-inp"></input></td></tr>
+            <tr><td>1.8</td><td><input type="text" id="v-1.8" name="volume-inp"></input></td></tr>
+            <tr><td>2.0</td><td><input type="text" id="v-2.0" name="volume-inp"></input></td></tr>
+            <tr><td>2.2</td><td><input type="text" id="v-2.2" name="volume-inp"></input></td></tr>
+            <tr><td>2.4</td><td><input type="text" id="v-2.4" name="volume-inp"></input></td></tr>
+            <tr><td>2.6</td><td><input type="text" id="v-2.6" name="volume-inp"></input></td></tr>
+            <tr><td>2.8</td><td><input type="text" id="v-2.8" name="volume-inp"></input></td></tr>
+            <tr><td>3.0</td><td><input type="text" id="v-3.0" name="volume-inp"></input></td></tr>
+            <tr><td>3.2</td><td><input type="text" id="v-3.2" name="volume-inp"></input></td></tr>
+            <tr><td>3.4</td><td><input type="text" id="v-3.4" name="volume-inp"></input></td></tr>
+            <tr><td>3.6</td><td><input type="text" id="v-3.6" name="volume-inp"></input></td></tr>
+        </tbody>
+      </table>
+      <!-- <ul>
+    <li style="padding-bottom:5px;">Pipette out 50cm3 of the given soft drinks (weak acid) into a clean 250 cm3 beaker</li>
+    <li style="padding-bottom:5px;">Insert glass electrode calomel electrode assembly into it and connect it to pH meter. Measure the pH of the acid. Fill the given burette with sodium hydroxide.</li>
+    <li style="padding-bottom:5px;">In the beginning add 0.2cm3 of NaOH at a time and stir the mixture </li>
+    <li style="padding-bottom:5px;">Measure the pH. Continue adding 0.2 cm3 of NaOH and measure the pH regularly after each addition increase in pH is comparatively Large.</li>
+    <li style="padding-bottom:5px;">Take a few more reading by adding 0.2 cm3 of NaOH</li>
     <li style="padding-bottom:5px;">Use the scroll bar to adjust the dropping rate.</li>
-    <li>Click in the graph area to clear it. (Changing any of the parameters will clear it anyway.)</li>
-    </ul> 
-    <p>Note: The method used to calculate the pH and generate the curves is the same as that in the text, though the full the quadratic solution is always used, that is, the "usual approximation" is not applied. However, the contribution to [H<sup>+</sup>] from the auto-ionization of water is ignored (as it is in the text). For very dilute solutions and/or very weak acids or bases, this leads to a discontinuity in the curve near the equivalence point which would not be seen in a real experimental plot.</p>
+    <li>Determine thepKa of the given weak acid from two graphs</li>
+    </ul>  -->
+    <p>ph against V and dPh/dV is plotted</p>
+    <input type="button" id="matlabGenerateButton" value="Generate Matlab Code" onclick="matlabGenerate()"> 
     </div>
     
     <div id="data" style="position:absolute; top:750px; left:10px; padding:0px 20px;"><table width="300" border="2"><tbody><tr><td width="100" align="center">Reading</td><td width="100" align="center">Buret (mL)</td><td align="center">pH</td></tr><tr><td align="center">2</td><td align="center">1.32</td><td align="center">4.27</td></tr><tr><td align="center">3</td><td align="center">1.40</td><td align="center">4.41</td></tr><tr><td align="center">4</td><td align="center">2.12</td><td align="center">10.28</td></tr><tr><td align="center">5</td><td align="center">2.20</td><td align="center">10.50</td></tr></tbody></table></div>
